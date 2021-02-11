@@ -16,6 +16,16 @@ colors = {'w': (255, 255, 255),
           'b': (0, 0, 255)}
 
 
+# Draws the grid onto the window
+def drawGrid():
+    rows, columns = 50, 50
+    for i in range(rows):
+        pygame.draw.line(win, colors['bl'], (i * boxSize, 0), (i * boxSize, winSize))
+
+    for j in range(columns):
+        pygame.draw.line(win, colors['bl'], (0, j * boxSize), (winSize, j * boxSize))
+
+
 clock = pygame.time.Clock()
 running = True
 
@@ -29,8 +39,8 @@ while running:
        
 
     win.fill(colors['w'])
-    
-    
+    drawGrid()
+
     pygame.display.update()
     clock.tick(60)
 
