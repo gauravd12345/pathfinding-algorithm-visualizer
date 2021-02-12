@@ -1,3 +1,5 @@
+import sys
+import time
 import pygame
 from node import Node
 
@@ -71,6 +73,19 @@ def getNodeUnderMouse():
     return nodeGrid[x][y]
 
 
+# Returns the node with the lowest f score
+def getMinScore(node, grid):
+    minScore, minNode = float("inf"), node
+    for i in node.getNeighbours(grid):
+
+        newNodeScore = i.get_fScore(startX, startY, endX, endY)
+        if newNodeScore < minScore:
+            minScore, minNode = newNodeScore, i
+
+    return minNode
+        
+
+# Some constants
 clock = pygame.time.Clock()
 running, selected = True, False
 
@@ -81,6 +96,10 @@ endNode = nodeGrid[endX][endY]
 
 startNode.setColor(colors['lightblue'])
 endNode.setColor(colors['lightorange'])
+
+
+openList, closeList = [startNode], []
+
 
 # Gameloop
 while running:
@@ -94,15 +113,54 @@ while running:
         if event.type == pygame.MOUSEBUTTONUP:
             selected = False
 
-        # Clears the node grid
+      
         if event.type == pygame.KEYDOWN:
+            # Clears the node grid
             if event.key == pygame.K_RETURN:
                 clearNodeGrid(nodeGrid)
 
+            if event.key == pygame.K_SPACE:
+                while len(openList) > 0:
+                    minNode, minScore = startNode, float("inf")
+                    for i in openList:
+                        if i.get_fScore(startX, startY, endX, endY) < minScore:
+                            minNode = i
+                            #print(minNode.getPos())
+                            minScore = i.get_fScore(startX, startY, endX, endY)
+                        
+
+
+                    openList.remove(minNode)
+                    children = minNode.getNeighbours(nodeGrid)
+                    for j in children:
+                        if j == endNode:
+                            break
+
+                        if j in openList:
+                            """index = openList[openList.index(j)]
+                            if j.get_fScore(startX, startY, endX, endY) > openList[index].get_fScore(startX, startY, endX, endY):
+                                continue"""
+                            continue
+                        
+                        if j in closeList:
+                            """index = closeList[openList.index(j)]
+                            if j.get_fScore(startX, startY, endX, endY) > closeList[index].get_fScore(startX, startY, endX, endY):
+                                continue    
+
+                            else:
+                                openList.append(j)"""
+                            continue
+                        
+                        openList.append(j)
+
+
+                    closeList.append(minNode)
+                    
 
     # Changes the color of the node 
     # if the mouse is clicked
     if selected:
+
         # Draws the node
         if pygame.mouse.get_pressed()[0]:
             node = getNodeUnderMouse()
@@ -118,6 +176,7 @@ while running:
     drawGrid()
     pygame.display.update()
     clock.tick(60)
+
 
 
 pygame.quit()
